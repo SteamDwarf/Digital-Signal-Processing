@@ -1,0 +1,11 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#curve_chart {
+    width: 1000px;
+    height: 600px;
+    margin: 0 auto;
+}
