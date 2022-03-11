@@ -41,6 +41,16 @@ export interface IGetNKoefficient {
         integrableFunctions: IntegrableFunction, 
         upperLimit: number, 
         lowerLimit: number, 
+        koefficient: number,
+        period: number,
+        frequency: number
+    ): number
+}
+export interface IGetNKoefficientArray {
+    (
+        integrableFunctions: IntegrableFunction, 
+        upperLimit: number, 
+        lowerLimit: number, 
         partMembers: number,
         period: number,
         frequency: number
@@ -64,11 +74,11 @@ export interface IDecomposeFourierSeries {
         endPoint: number,
         step: number,
         period: number,
-        partMembers: number,
+        powerLoss: number,
         decomposingFunctions: IntegrableFunction,
         upperLimit: number,
         lowerLimit: number
-    ): ChartPoints
+    ): SignalData
 }
 
 export type simpleFunc = {
@@ -81,12 +91,13 @@ export type funcWithK = {
 
 export type IntegrableFunction = simpleFunc | funcWithK;
 
-export type ChartPoints = {
+export type SignalData = {
     cordX: number[],
     cordY: number[],
     amplitudes: number[],
     harmonicPhases: number[],
-    frequencies: number[]
+    frequencies: number[],
+    averagePower: number;
 }
 
 

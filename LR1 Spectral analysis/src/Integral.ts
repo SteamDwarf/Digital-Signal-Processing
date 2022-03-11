@@ -1,10 +1,10 @@
-import { ICountComplexSimpsonProps, IGetFunctionValueProps, ISimpsonCountProps } from "./interfaces/interfaces";
+import { ICountComplexSimpsonProps, IGetFunctionValueProps, ISimpsonCountProps } from "./types/interfaces";
 
 class Integral {
     private static getIntegrationStep = (upperLimit: number, lowerLimit: number): number[] => {
         let step: number;
         let segmentsCount: number;
-        let maxStep: number = 0.0000001 ** (1/4);
+        let maxStep: number = 0.00001 ** (1/4);
     
         segmentsCount = Math.ceil((upperLimit - lowerLimit) / maxStep);
         segmentsCount % 2 !== 0 ? ++segmentsCount : segmentsCount;

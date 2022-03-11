@@ -2,10 +2,83 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-size: 18px;
+    font-family: sans-serif;
 }
 
 #curve_chart {
     width: 1000px;
     height: 600px;
     margin: 0 auto;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+    margin: 10px auto;
+}
+
+.left_bar {
+    width: 300px;
+    height: 500px;
+    padding: 20px 25px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+
+.average-power_block {
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(16, 185, 251, 0.867);
+    text-align: center;
+}
+
+.power-loss_block {
+    height: 90%;
+}
+
+.power-loss_list {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    list-style-type: none;
+}
+
+.power-loss_item {
+    padding: 10px 15px;
+    border: 1px solid rgba(16, 185, 251, 0.867);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.graph_block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.graph-control_btn {
+    border: 1px solid rgba(16, 185, 251, 0.867);
+    border-radius: 5px;
+    padding: 10px;
+    background-color: transparent;
+    transition: 0.5s;
+    cursor: pointer;
+}
+.graph-control_btn:hover {
+    background-color: rgba(16, 185, 251, 0.867);
+    color: white;
+}
+
+.graph-information_block {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(16, 185, 251, 0.867);
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.graph-information_item {
+    margin-bottom: 5px;
 }

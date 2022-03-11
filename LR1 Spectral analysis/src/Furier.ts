@@ -1,5 +1,5 @@
 import Integral from "./Integral";
-import { ICountFourierSum, IDecomposeFourierSeries, IGet0Koefficient, IGetNKoefficient, IntegrableFunction } from "./interfaces/interfaces";
+import { ICountFourierSum, IDecomposeFourierSeries, IGet0Koefficient, IGetNKoefficient, IGetNKoefficientArray, IntegrableFunction } from "./types/interfaces";
 
 class Furier {
     
@@ -7,22 +7,28 @@ class Furier {
         let a0: number = 2 / period * Integral.countSimpsonIntegral(integrableFunctions, upperLimit, lowerLimit, 0);
         return a0;
     }
+
+    private static getAn: IGetNKoefficient = (integrableFunction, upperLimit, lowerLimit, koefficient, period, frequency) => {
+        let funcsMCos: IntegrableFunction = (t, koefficient) => integrableFunction(t, koefficient) * Math.cos(koefficient * frequency * t);
+        return 2 / period * Integral.countSimpsonIntegral(funcsMCos, upperLimit, lowerLimit, koefficient);
+    }
     
-    private static getAn: IGetNKoefficient = (integrableFunctions, upperLimit, lowerLimit, partMembers, period, frequency) => {
-        let funcsMCos: IntegrableFunction = (t, koefficient) => integrableFunctions(t, koefficient) * Math.cos(koefficient * frequency * t);
+    private static getAnArray: IGetNKoefficientArray = (integrableFunction, upperLimit, lowerLimit, partMembers, period, frequency) => {
         let anArray = new Array(partMembers).fill(0).map((a, i) => {
-            let an = 2 / period * Integral.countSimpsonIntegral(funcsMCos, upperLimit, lowerLimit, i + 1);
-            return an;
+            return this.getAn(integrableFunction, upperLimit, lowerLimit, i + 1, period, frequency);
         });
 
         return anArray;
     }
     
-    private static getBn: IGetNKoefficient = (integrableFunctions, upperLimit, lowerLimit, partMembers, period, frequency) => {
-        let funcsMSin: IntegrableFunction = (t, koefficient) => integrableFunctions(t, koefficient) * Math.sin(koefficient * frequency * t);
+    private static getBn: IGetNKoefficient = (integrableFunction, upperLimit, lowerLimit, koefficient, period, frequency) => {
+        let funcsMSin: IntegrableFunction = (t, koefficient) => integrableFunction(t, koefficient) * Math.sin(koefficient * frequency * t);
+        return 2 / period * Integral.countSimpsonIntegral(funcsMSin, upperLimit, lowerLimit, koefficient);
+    }
+
+    private static getBnArray: IGetNKoefficientArray = (integrableFunction, upperLimit, lowerLimit, partMembers, period, frequency) => {
         let bnArray = new Array(partMembers).fill(0).map((b, i) => {
-            let bn = 2 / period * Integral.countSimpsonIntegral(funcsMSin, upperLimit, lowerLimit, i + 1);
-            return bn;
+            return this.getBn(integrableFunction, upperLimit, lowerLimit, i + 1, period, frequency);
         });
 
         return bnArray;
@@ -45,7 +51,7 @@ class Furier {
         return anArray.map((a, i) => this.getAmplitude(a, bnArray[i]));
     }
     private static getHarmonicPhase(an: number, bn: number): number {
-        return Math.atan(bn / an);
+        return Math.atan2(bn, an);
     }
     private static getHarmonicPhases(anArray: number[], bnArray: number[]): number[] {
         return anArray.map((a, i) => this.getHarmonicPhase(a, bnArray[i]));
@@ -61,7 +67,7 @@ class Furier {
         return (Pc - Pk) / Pc;
     }
 
-    static decomposeInFourierSeries: IDecomposeFourierSeries = (beginPoint, endPoint, step, period, partMembers, decomposingFunctions, upperLimit, lowerLimit) => {
+    static decomposeInFourierSeries: IDecomposeFourierSeries = (beginPoint, endPoint, step, period, powerLoss, decomposingFunctions, upperLimit, lowerLimit) => {
         let cordinatesX: number[] = [beginPoint];
         let cordinatesY: number[] = [];
         let lastX: number = beginPoint;
@@ -76,34 +82,17 @@ class Furier {
         let Pk = this.getHarmonicsPower(a0, amplitudes);
         let curPartMembers = 0;
         
-        for(let i = 0; /* i < 12 */ 0.001 < this.getPowerrLoss(Pc, Pk); i++) {
-            console.log(this.getPowerrLoss(Pc, Pk));
+        for(let i = 0; powerLoss < this.getPowerrLoss(Pc, Pk); i++) {
             curPartMembers += 1;
-            anArray = this.getAn(decomposingFunctions, upperLimit, lowerLimit, curPartMembers, period, frequency);
-            bnArray = this.getBn(decomposingFunctions, upperLimit, lowerLimit, curPartMembers, period, frequency);
-            amplitudes = this.getAmplitudes(anArray, bnArray);
-            harmonicPhases = this.getHarmonicPhases(anArray, bnArray);
-            frequencies = amplitudes.map((a, i) => (i + 1) * this.getFrequency(period))
+            anArray.push(this.getAn(decomposingFunctions, upperLimit, lowerLimit, curPartMembers, period, frequency));
+            bnArray.push(this.getBn(decomposingFunctions, upperLimit, lowerLimit, curPartMembers, period, frequency));
+            amplitudes.push(this.getAmplitude(anArray[curPartMembers - 1], bnArray[curPartMembers - 1]));
             Pk = this.getHarmonicsPower(a0, amplitudes);
-            
-/*             console.log(Pk);
-            console.log(Pc); */
         }
 
-        /* let anArray: number[] = this.getAn(decomposingFunctions, upperLimit, lowerLimit, partMembers, period, frequency);
-        let bnArray: number[] = this.getBn(decomposingFunctions, upperLimit, lowerLimit, partMembers, period, frequency);
-        let amplitudes: number[] = [a0 / 2, ...this.getAmplitudes(anArray, bnArray)];
-        let harmonicPhases: number[] = [0, ...this.getHarmonicPhases(anArray, bnArray)];
-        let frequencies: number[] = amplitudes.map((a, i) => i * this.getFrequency(period)); */
-        //let Pc = this.getAveragePower(period, decomposingFunctions);
-        //let Pk = this.getHarmonicsPower(a0, amplitudes);
-/*         console.log(amplitudes);
+        frequencies = amplitudes.map((a, i) => (i + 1) * this.getFrequency(period));
+        harmonicPhases = this.getHarmonicPhases(anArray, bnArray);
         console.log(harmonicPhases);
-        console.log(frequencies);
-        console.log(Pc);
-        console.log(Pk);
-        console.log(powerLoss); */
-
 
         do {
             lastX += step
@@ -114,7 +103,7 @@ class Furier {
             cordinatesY.push(this.countFourierSum(a0, anArray, bnArray, x, curPartMembers, frequency));
         });
 
-        return {cordX: cordinatesX, cordY: cordinatesY, amplitudes, harmonicPhases, frequencies}
+        return {cordX: cordinatesX, cordY: cordinatesY, amplitudes, harmonicPhases, frequencies, averagePower: Pc}
     }
 }
 
